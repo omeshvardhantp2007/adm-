@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Indian Royal Personality Quiz</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Poppins:wght@400;600&display=swap');
+
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      /* Royal Dark Theme */
+      background: linear-gradient(135deg, #1c1c1c, #4a3b2a);
+      color: #333;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px;
+    }
+
+    .container {
+      background: #fffcf5; /* Cream parchment color */
+      padding: 40px;
+      border-radius: 16px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+      max-width: 550px;
+      width: 100%;
+      text-align: center;
+      border: 4px solid #c5a059; /* Gold border */
+      position: relative;
+    }
+
+    h1 {
+      font-family: 'Cinzel', serif;
+      color: #5c4033;
+      margin-top: 0;
+      font-size: 2.2rem;
+    }
+
+    p {
+      color: #555;
+      line-height: 1.6;
+      font-size: 1.1rem;
+    }
+
+    /* Start Screen Specifics */
+    #start-screen {
+      animation: fadeIn 0.8s ease;
+    }
+
+    .hero-icon {
+      font-size: 4rem;
+      margin-bottom: 20px;
+      display: block;
+    }
+
+    /* Progress Bar */
+    .progress-bar {
+      height: 8px;
+      background: #e0e0e0;
+      margin: 20px 0;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: #c5a059;
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+
+    .question-text {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 25px;
+      text-align: left;
+      color: #222;
+    }
+
+    /* Options Styling */
+    .options label {
+      display: flex;
+      align-items: center;
+      background: white;
+      border: 2px solid #e6e6e6;
+      padding: 15px;
+      margin-bottom: 12px;
+      border-radius: 10px;
+      cursor: pointer;
+      text-align: left;
+      transition: 0.2s;
+    }
+
+    .options label:hover {
+      border-color: #c5a059;
+      background: #fff9e6;
+      transform: translateX(4px);
+    }
+
+    input[type="radio"] {
+      margin-right: 15px;
+      accent-color: #c5a059;
+      transform: scale(1.3);
+    }
+
+    button {
+      background: #5c4033;
+      color: #d4af37;
+      border: 2px solid #d4af37;
+      padding: 15px 30px;
+      font-size: 18px;
+      border-radius: 50px;
+      cursor: pointer;
+      margin-top: 25px;
+      width: 100%;
+      font-family: 'Cinzel', serif;
+      font-weight: bold;
+      transition: 0.3s;
+      box-shadow: 0 5px 15px rgba(92, 64, 51, 0.3);
+    }
+
+    button:hover {
+      background: #d4af37;
+      color: #5c4033;
+      transform: translateY(-2px);
+    }
+
+    /* Result Styling */
+    .result-box {
+      display: none;
+      animation: slideUp 0.6s ease;
+      text-align: center;
+    }
+
+    .img-container {
+      width: 100%;
+      height: 300px;
+      margin: 20px 0;
+      border: 5px solid #c5a059;
+      border-radius: 12px;
+      overflow: hidden;
+      background-color: #eee;
+      position: relative;
+    }
+
+    .result-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: top;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    
+    <div id="start-screen">
+      <span class="hero-icon">👑</span>
+      <h1>Royal Destiny</h1>
+      <p>Travel back to the golden era of Indian history.</p>
+      <p>Answer 5 strategic questions to reveal which legendary King or Queen's soul resides within you.</p>
+      <p style="font-size: 0.9rem; color: #888;">Are you a Warrior, a Builder, or a Peacemaker?</p>
+      <button onclick="startQuiz()">Enter the Court</button>
+    </div>
+
+    <div id="quiz-ui" style="display: none;">
+      <h1 style="font-size: 1.5rem;">Royal Destiny</h1>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+      
+      <div id="question-container"></div>
+      <button id="nextBtn" onclick="nextQuestion()">Next Question</button>
+    </div>
+
+    <div id="result-ui" class="result-box"></div>
+  </div>
+
+  <script>
+    // --- DATA ---
+    const questions = [
+      {
+        question: "1. The enemy is at the gates. What is your command?",
+        answers: [
+          { text: "Charge! Attack with full power.", trait: "valor" },
+          { text: "Send a diplomat to negotiate.", trait: "dharma" },
+          { text: "Use guerrilla tactics to ambush.", trait: "strategy" },
+          { text: "Fortify the city defenses.", trait: "culture" }
+        ]
+      },
+      {
+        question: "2. How do you want to be remembered?",
+        answers: [
+          { text: "As the bravest warrior.", trait: "valor" },
+          { text: "As a kind and just ruler.", trait: "dharma" },
+          { text: "As a genius mastermind.", trait: "strategy" },
+          { text: "As a builder of great temples.", trait: "culture" }
+        ]
+      },
+      {
+        question: "3. Choose a royal symbol:",
+        answers: [
+          { text: "A roaring Lion.", trait: "valor" },
+          { text: "The Wheel of Law.", trait: "dharma" },
+          { text: "A hidden Dagger.", trait: "strategy" },
+          { text: "An intricate Pillar.", trait: "culture" }
+        ]
+      },
+      {
+        question: "4. Your kingdom is flooding. You...",
+        answers: [
+          { text: "Ride out to save people yourself.", trait: "valor" },
+          { text: "Donate the treasury to the poor.", trait: "dharma" },
+          { text: "Redesign the river flow.", trait: "strategy" },
+          { text: "Build a new city on higher ground.", trait: "culture" }
+        ]
+      },
+      {
+        question: "5. Favorite subject?",
+        answers: [
+          { text: "Weaponry & Combat", trait: "valor" },
+          { text: "Ethics & Peace", trait: "dharma" },
+          { text: "Math & Logic", trait: "strategy" },
+          { text: "Arts & Architecture", trait: "culture" }
+        ]
+      }
+    ];
+
+    const results = {
+      valor: {
+        title: "Rani Lakshmibai / Velu Nachiyar",
+        desc: "You are a fierce warrior! Like Velu Nachiyar (the first Queen to fight the British) or the Rani of Jhansi, you fear nothing. You lead from the front.",
+        img: "https://commons.wikimedia.org/wiki/Special:FilePath/Rani_of_Jhansi.jpg?width=500"
+      },
+      dharma: {
+        title: "Emperor Ashoka",
+        desc: "You are the Peacemaker. Like Ashoka the Great, you believe that true strength lies in kindness, justice, and the welfare of all living beings.",
+        img: "https://commons.wikimedia.org/wiki/Special:FilePath/King_Ashoka_visiting_Ramagrama.jpg?width=500"
+      },
+      strategy: {
+        title: "Chhatrapati Shivaji Maharaj",
+        desc: "You are the Master Strategist. Like Shivaji Maharaj, you defeat enemies much stronger than you by using your brain, geography, and clever tactics.",
+        img: "https://commons.wikimedia.org/wiki/Special:FilePath/Shivaji_British_Museum.jpg?width=500"
+      },
+      culture: {
+        title: "Raja Raja Chola I",
+        desc: "You are the Visionary Builder. Like the great Chola King, you create legacies (like the Big Temple) that last for a thousand years.",
+        img: "https://commons.wikimedia.org/wiki/Special:FilePath/Raja_Raja_Chola_statue.jpg?width=500"
+      }
+    };
+
+    // --- STATE ---
+    let currentQ = 0;
+    let scores = { valor: 0, dharma: 0, strategy: 0, culture: 0 };
+
+    // --- FUNCTIONS ---
+    
+    function startQuiz() {
+      // Hide Start Screen, Show Quiz
+      document.getElementById('start-screen').style.display = 'none';
+      document.getElementById('quiz-ui').style.display = 'block';
+      loadQuestion();
+    }
+
+    function loadQuestion() {
+      const data = questions[currentQ];
+      const percent = ((currentQ) / questions.length) * 100;
+      document.getElementById('progressFill').style.width = percent + "%";
+
+      let html = `<div class="question-text">${data.question}</div><div class="options">`;
+      data.answers.forEach(ans => {
+        html += `
+          <label>
+            <input type="radio" name="trait" value="${ans.trait}">
+            ${ans.text}
+          </label>
+        `;
+      });
+      html += `</div>`;
+      document.getElementById('question-container').innerHTML = html;
+      
+      if (currentQ === questions.length - 1) {
+        document.getElementById('nextBtn').innerText = "Reveal Destiny 👑";
+      }
+    }
+
+    function nextQuestion() {
+      const selected = document.querySelector('input[name="trait"]:checked');
+      if (!selected) {
+        alert("Please select an option first!");
+        return;
+      }
+      scores[selected.value]++;
+      currentQ++;
+      if (currentQ < questions.length) {
+        loadQuestion();
+      } else {
+        showResults();
+      }
+    }
+
+    function showResults() {
+      let maxScore = 0;
+      let winner = "valor";
+      for (let key in scores) {
+        if (scores[key] > maxScore) {
+          maxScore = scores[key];
+          winner = key;
+        }
+      }
+
+      const resData = results[winner];
+      document.getElementById('quiz-ui').style.display = 'none';
+      const resBox = document.getElementById('result-ui');
+      
+      resBox.innerHTML = `
+        <h2>${resData.title}</h2>
+        <div class="img-container">
+          <img src="${resData.img}" alt="${resData.title}" onerror="this.parentElement.style.background='#ccc'; this.style.display='none'; this.parentElement.innerHTML='<p style=\\'padding-top:40%;color:#333\\'><b>Image Blocked by Network</b></p>'">
+        </div>
+        <p><strong>${resData.desc}</strong></p>
+        <button onclick="location.reload()">Return to the Throne (Restart)</button>
+      `;
+      resBox.style.display = 'block';
+    }
+  </script>
+</body>
+</html>
